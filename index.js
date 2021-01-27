@@ -40,7 +40,7 @@ try {
                         generateGridItem($, "container", imgPath, resContentType, url)
                     })
                     .catch(err => {
-                        spinner.fail(`Unable to scrape image from: ${url}, reason: ${err.message}.`);
+                        spinner.fail(`Unable to scrape base64 image, reason: ${err.message}.`);
                         spinner.start();
                     })
                 );
