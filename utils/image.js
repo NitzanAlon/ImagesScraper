@@ -13,6 +13,7 @@ createImage = (data, path, ...args) => {
                 if(err) reject(err);
                 resolve(); 
             });
+            ws.on("error", err => reject(err));
         }
     });
 }
