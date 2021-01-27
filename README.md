@@ -13,7 +13,11 @@ npm i
 ```
 
 ## Run
-Running pattern is: node index.js {URL} {DESTINATION_FOLDER}<br/>For example:</p>
+Running pattern is:</br>
+```
+node index.js {URL} {DESTINATION_FOLDER}
+```
+<br/>For example:</p>
 ```
 node index.js https://www.yourwebsite.com images-yourWebsite
 ```
