@@ -3,7 +3,8 @@ const path = require("path");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 
-const { createB64Image, createRegularImage, isImageUrl, getImageData } = require("./utils/image");
+const { createB64Image, createRegularImage, isImageUrl } = require("./utils/image");
+const generateGridItem = require("./utils/dom");
 
 try {
     const URL = process.argv[2];
@@ -22,33 +23,30 @@ try {
         const promises = [];
         page.on("response", response => {
             const url = response.url();
+            const resContentType = response.headers()["content-type"];
             if(url.indexOf(";base64,") > -1) {
-                promises.push(new Promise((resolve, reject) => {
+                promises.push(
                     createB64Image(url, DEST_FOLDER).then(imgPath => {
-                        let img = { imgPath, imgFormat: response.headers()["content-type"] };
-                        const imgData = getImageData(img, url);
-                        $("#container").append(getGridItem(imgData.imgSrcs, imgData.dimensions, imgData.imgFormat));
-                        resolve();
+                        if(imgPath && resContentType) {
+                            generateGridItem($, "container", imgPath, resContentType, url)
+                        }
                     })
-                    .catch(err => reject(err.message));
-                }));
+                    .catch(err => console.log(err.message))
+                );
             } 
             else {
                 if(response.request().resourceType() === "image" && isImageUrl(url)) {
                     response.buffer()
                         .then(file => {
-                            promises.push(new Promise((resolve, reject) => {
+                            promises.push(
                                 createRegularImage(file, url, DEST_FOLDER)
                                     .then(imgPath => {
-                                        if(imgPath && response.headers()["content-type"]) {
-                                            let img = { imgPath, imgFormat: response.headers()["content-type"] };
-                                            const imgData = getImageData(img, url);
-                                            $("#container").append(getGridItem(imgData.imgSrcs, imgData.dimensions, imgData.imgFormat));
-                                            resolve();
-                                        } else reject();
+                                        if(imgPath && resContentType) {
+                                            generateGridItem($, "container", imgPath, resContentType, url);
+                                        }
                                     })
-                                    .catch(err => reject(err));
-                                }));
+                                    .catch(err => console.log(err))
+                            );
                         })
                         .catch(err => console.log(err.message))
                 }
@@ -63,17 +61,4 @@ try {
     })();
 } catch(err) {
     console.log(err);
-}
-
-function getGridItem(imgSrc, originalSize, format) {
-    const { width, height } = originalSize;
-    const source = getDetail("source", imgSrc.original);
-    const dimensions = getDetail("dimensions", `${width}x${height}`);
-    const imgFormat = getDetail("format", format);
-    const itemDetails = `<div class="details">${source}${dimensions}${imgFormat}</div>`;
-    return `<div class="grid-item"><img src=${imgSrc.local}>${itemDetails}</div>`;
-}
-
-function getDetail(title, value) {
-    return `<div class=${title}><span class=${title}>${title.toUpperCase()}:</span><span class="value">${value}</span></div>`
 }

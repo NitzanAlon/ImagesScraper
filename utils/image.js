@@ -17,7 +17,7 @@ createImage = (data, path, ...args) => {
     });
 }
 
-exports.createB64Image  = async (source, destinationPath) => {
+const createB64Image  = async (source, destinationPath) => {
     try {
         const b64 = source.split(";base64,").pop();
         const fileExt = source.substring("data:image/".length, source.indexOf(";base64,")).split("+")[0];
@@ -35,7 +35,7 @@ exports.createB64Image  = async (source, destinationPath) => {
     }
 }
 
-exports.createRegularImage = (fileBuffer, url, destinationPath) => {
+const createRegularImage = (fileBuffer, url, destinationPath) => {
     return new Promise((resolve, reject) => {
         const fileName = url.split("/").pop().split("?")[0];
         const imgPath = path.join(destinationPath, fileName);
@@ -45,11 +45,11 @@ exports.createRegularImage = (fileBuffer, url, destinationPath) => {
     });
 }
 
-exports.isImageUrl = url => {
+const isImageUrl = url => {
     return /(https:\/\/)([^\s(["<,>\/]*)(\/)[^\s["><]*(.png|.jpe?g|.svg|.ico|.gif|.webp)(\?[^\s[",><]*)?/gmi.test(url);
 }
 
-exports.getImageData = (img, url) => {
+const getImageData = (img, url) => {
     try {
         const { imgFormat } = img;
         const dimensions = sizeOf(img.imgPath);
@@ -62,4 +62,11 @@ exports.getImageData = (img, url) => {
     } catch(err) {
         throw err;
     }
+}
+
+module.exports = {
+    createB64Image,
+    createRegularImage,
+    isImageUrl,
+    getImageData
 }
